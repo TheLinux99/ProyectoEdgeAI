@@ -1,71 +1,90 @@
 import cv2
-from fer import FER
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+import tensorflow as tf
+import numpy as np
+from skimage.transform import resize
 
-"Leer imagenes de video en vivo"
+def crop_center(img, x, y, w, h):    
+    return img[y:y+h,x:x+w]
 
-vid = cv2.VideoCapture(1)
-# Setting up the blob detector
-params = cv2.SimpleBlobDetector_Params()
+def preprocess_img(raw):
+    img = resize(raw,(200,200, 3))
+    img = np.expand_dims(img,axis=0)
+    if(np.max(img)>1):
+        img = img/255.0
+    return img
 
-params.filterByInertia
-params.minInertiaRatio = 0.6
+def brain(raw, x, y, w, h):
+    ano = ''
+    img = crop_center(raw, x, y , w , h)
+    img = preprocess_img(img)
+    f.set_tensor(i['index'], img.astype(np.float32))
+    f.invoke()
+    res = f.get_tensor(o['index'])
+    classes = np.argmax(res,axis=1)
+    if classes == 0:
+        ano = 'anger'
+    elif classes == 1:
+        ano = 'disgust'
+    elif classes == 2:
+        ano = 'fear'
+    elif classes == 3:
+        ano = "happy"
+    elif classes == 4:
+        ano = "neutral"
+    elif classes == 5:
+        ano = 'sadness'
+    else :
+        ano = 'surprised'
+    return ano
+    
 
-detector = cv2.SimpleBlobDetector_create(params)
+print('Loading ..')
 
-def GetImage():
-    while(True):
+f = tf.contrib.lite.Interpreter("models/model_optimized.tflite")
+f.allocate_tensors()
+i = f.get_input_details()[0]
+o = f.get_output_details()[0]
 
-        grayFrame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+print('Load Success')
 
-        cv2.imshow("grayFrame",grayFrame)
-        res = cv2.waitKey(1)
-        # Stop if the user presses "q"
-        if res & 0xFF == ord('q'):
-            break
-    return grayFrame
+cascPath = "haarcascade_frontalface_default.xml"
 
-def TurnOff():
-    # When everything is done, release the capture
-    vid.release()
-    cv2.destroyAllWindows()
+faceCascade = cv2.CascadeClassifier(cascPath)
 
-def GetEmotion():
-    while(True):
 
-        "Obtener el frame de la camara"
+cap = cv2.VideoCapture(0)
+ai = 'anger'
+img = np.zeros((200, 200, 3))
+ct = 0
+while(True):
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+    ct+=1
+    # Our operations on the frame come here
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        ret, frame = vid.read()
-        emotion_detector = FER()
-        emotion = emotion_detector.detect_emotions(frame)
-        print(emotion)
+    # Detect faces in the image
+    faces = faceCascade.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(150, 150)
+        #flags = cv2.CV_HAAR_SCALE_IMAGE
+    )
+    
+    ano = ''    
+    for (x, y, w, h) in faces:
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.putText(frame, ai, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2, cv2.LINE_AA)
+        if ct > 3:
+            ai = brain(gray, x, y, w, h)
+            ct = 0
 
-        if(emotion != []):
+    # Display the resulting frame
+    cv2.imshow('frame',frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
-            "Poner el rectangulo alrededor de la cara"
-
-            bounding_box = emotion[0]["box"]
-            emotions = emotion[0]["emotions"]
-            cv2.rectangle(frame, (bounding_box[0], bounding_box[1]), (bounding_box[0] + bounding_box[2], bounding_box[1] + bounding_box[3]),(0, 155, 255), 2, )
-
-            "Escribir la emocion en la imagen"
-
-            emotion_name, score = emotion_detector.top_emotion(frame)
-
-            for index, (emotion_name, score) in enumerate(emotions.items()):
-                color = (211, 211, 211) if score < 0.01 else (255, 0, 0)
-                emotion_score = "{}: {}".format(emotion_name, "{:.2f}".format(score))
-
-                cv2.putText(frame, emotion_score,
-                            (bounding_box[0], bounding_box[1] + bounding_box[3] + 30 + index * 15),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1, cv2.LINE_AA, )
-        cv2.imshow("Frame", frame)
-        res = cv2.waitKey(1)
-        # Stop if the user presses "q"
-        if res & 0xFF == ord('q'):
-            break;
-
-    TurnOff()
-
-GetEmotion()
+# When everything done, release the capture
+cap.release()
+cv2.destroyAllWindows()
