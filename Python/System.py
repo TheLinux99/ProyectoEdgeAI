@@ -1,5 +1,6 @@
 import cv2
-import tensorflow as tf
+#import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 import numpy as np
 from skimage.transform import resize
 
@@ -8,6 +9,9 @@ def crop_center(img, x, y, w, h):
 
 def preprocess_img(raw):
     img = resize(raw,(200,200, 3))
+    #print(raw.shape)
+    #img = cv2.resize(raw,(200,200))
+    #img = raw.reshape(200,200,3)
     img = np.expand_dims(img,axis=0)
     if(np.max(img)>1):
         img = img/255.0
@@ -40,7 +44,9 @@ def brain(raw, x, y, w, h):
 
 print('Loading ..')
 
-f = tf.contrib.lite.Interpreter("models/model_optimized.tflite")
+#f = tf.lite.Interpreter("models/model_optimized.tflite")
+f = tflite.Interpreter("/usr/bin/model_optimized.tflite")
+#f = f = tflite.Interpreter("models/model_optimized.tflite")
 f.allocate_tensors()
 i = f.get_input_details()[0]
 o = f.get_output_details()[0]
