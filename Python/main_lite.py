@@ -7,7 +7,7 @@ from skimage.transform import resize
 
 import socket
 
-HOST = '192.168.100.63'  # The server's hostname or IP address
+HOST = '192.168.100.26'  # The server's hostname or IP address
 PORT = 65432        # The port used by the server
 
 def crop_center(img, x, y, w, h):    
@@ -68,39 +68,39 @@ cap = cv2.VideoCapture(0)
 ai = 'anger'
 img = np.zeros((200, 200, 3))
 ct = 0
-while(True):
-    # Capture frame-by-frame
-    ret, frame = cap.read()
-    ct+=1
-    # Our operations on the frame come here
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    while(True):
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        ct+=1
+        # Our operations on the frame come here
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # Detect faces in the image
-    faces = faceCascade.detectMultiScale(
-        gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(150, 150)
-        #flags = cv2.CV_HAAR_SCALE_IMAGE
-    )
+        # Detect faces in the image
+        faces = faceCascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(150, 150)
+            #flags = cv2.CV_HAAR_SCALE_IMAGE
+        )
     
-    ano = ''    
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(frame, ai, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2, cv2.LINE_AA)
-        if ct > 3:
-            ai = brain(gray, x, y, w, h)
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        ano = ''    
+        for (x, y, w, h) in faces:
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.putText(frame, ai, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2, cv2.LINE_AA)
+            if ct > 3:
+                ai = brain(gray, x, y, w, h)
                 s.connect((HOST, PORT))
                 s.sendall(ai.encode())
                 data = s.recv(1024)
-            print('Received', repr(data))
-            ct = 0
+                print('Received', repr(data))
+                ct = 0
 
-    # Display the resulting frame
-    cv2.imshow('frame',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        # Display the resulting frame
+        cv2.imshow('frame',frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
 # When everything done, release the capture
 cap.release()
