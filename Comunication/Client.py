@@ -1,7 +1,7 @@
 import socket
 import time
 
-HOST = '192.168.100.26'  # The server's hostname or IP address
+HOST = '192.168.100.30'  # The server's hostname or IP address
 PORT = 65432        # The port used by the server
 #prueba
 a = "Feliz"

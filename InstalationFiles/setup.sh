@@ -1,4 +1,4 @@
-pip3 install scikit-image
+pip3 install scikit-image config --global http.sslVerify false
 
 mkdir EdgeAI
 

@@ -3,7 +3,7 @@ from datetime import datetime
 
 
 
-HOST = '192.168.100.26'  # Standard loopback interface address (localhost)
+HOST = '192.168.100.30'  # Standard loopback interface address (localhost)
 PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
 dataset = []
 
