@@ -2,7 +2,13 @@ import cv2
 #import tensorflow as tf
 import tflite_runtime.interpreter as tflite
 import numpy as np
+import socket
 from skimage.transform import resize
+
+import socket
+
+HOST = '192.168.100.63'  # The server's hostname or IP address
+PORT = 65432        # The port used by the server
 
 def crop_center(img, x, y, w, h):    
     return img[y:y+h,x:x+w]
@@ -84,6 +90,11 @@ while(True):
         cv2.putText(frame, ai, (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2, cv2.LINE_AA)
         if ct > 3:
             ai = brain(gray, x, y, w, h)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((HOST, PORT))
+                s.sendall(ai.encode())
+                data = s.recv(1024)
+            print('Received', repr(data))
             ct = 0
 
     # Display the resulting frame
