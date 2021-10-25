@@ -9,7 +9,7 @@ def crop_center(img, x, y, w, h):
 
 
 def preprocess_img(raw):
-    print(raw.shape)
+    #print(raw.shape)
     # img = resize(raw,(200,200, 3))
     # print(raw.shape)
     img = cv2.resize(raw, (200, 200))
@@ -17,7 +17,7 @@ def preprocess_img(raw):
     img = np.expand_dims(img, axis=0)
     if (np.max(img) > 1):
         img = img / 255.0
-    print(img.shape)
+    #print(img.shape)
     return img
 
 
