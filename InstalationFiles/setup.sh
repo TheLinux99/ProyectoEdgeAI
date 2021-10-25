@@ -1,4 +1,6 @@
-pip3 install scikit-image config --global http.sslVerify false
+pip3 --no-cache-dir install matplotlib
+
+pip3 --no-cache-dir install scikit-image
 
 mkdir EdgeAI
 
