@@ -61,7 +61,7 @@ cascPath = "haarcascade_frontalface_default.xml"
 
 faceCascade = cv2.CascadeClassifier(cascPath)
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 ai = 'anger'
 img = np.zeros((200, 200, 3))
 ct = 0
