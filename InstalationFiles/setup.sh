@@ -10,6 +10,3 @@ mv Python ../
 
 cd ..
 
-rmdir ProyectoEdgeAI
-
-
