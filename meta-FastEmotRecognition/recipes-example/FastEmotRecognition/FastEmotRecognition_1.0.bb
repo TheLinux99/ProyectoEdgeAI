@@ -5,6 +5,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 SRC_URI = "file://setup.sh \
            file://start.sh \
+           file://barcode.py \
+           file://TestQR.jpeg \
            "
 
 S = "${WORKDIR}"
@@ -15,4 +17,10 @@ do_install_append () {
     
     install -d ${D}${bindir}
     install -m 0755 start.sh ${D}${bindir}
+    
+    install -d ${D}${bindir}
+    install -m 0755 barcode.py ${D}${bindir}
+    
+    install -d ${D}${bindir}
+    install -m 0755 TestQR.jpeg ${D}${bindir}
 }

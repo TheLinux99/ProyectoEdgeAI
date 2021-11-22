@@ -1,7 +1,9 @@
-pip3 install scikit-image
+pip3 install pyzbar
 
-mkdir EdgeAI
+mkdir ../Barcode
 
-cd EdgeAI
+mv barcode.py ../Barcode
 
-git clone https://github.com/TheLinux99/ProyectoEdgeAI.git
+mv TestQR.jpeg ../Barcode
+
+mv start.sh ~
