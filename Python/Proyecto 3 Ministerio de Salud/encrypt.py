@@ -3,22 +3,27 @@ from pyzbar.pyzbar import decode
 from PIL import Image
 from cryptography.fernet import Fernet
  
-#Mensaje original
-message = "Ministerio de Salud de Costa Rica. Estado de vacunacion COVID-19: Completo"
+#Mensajes originales
+message1 = "Ministerio de Salud de Costa Rica. Estado de vacunacion COVID-19: Completo"
+message2 = "Ministerio de Salud de Costa Rica. Estado de vacunacion COVID-19: Incompleto"
 
-#Key para encryptar y desencriptar
-key = Fernet.generate_key()
+#Key para encriptar y desencriptar
+#key = Fernet.generate_key()
 
-#Se guarda la key para poder desencryptar luego
-f = open("cryptokey.txt", "wb")
-f.write(key)
+#Se carga la key para poder encriptar el mensaje
+f = open("cryptokey.txt", "rb")
+key = f.read()
 f.close()
 
 fernet = Fernet(key)
  
-encMessage = fernet.encrypt(message.encode())
+encMessage1 = fernet.encrypt(message1.encode())
+encMessage2 = fernet.encrypt(message2.encode())
  
 #encMessage contiene el codigo para poner en el QR
 
-qrcode = pyqrcode.create(encMessage)
-qrcode.png('qrvac.png',scale=8)
+qrcode1 = pyqrcode.create(encMessage1)
+qrcode1.png('qrvac1.png',scale=8)
+
+qrcode2 = pyqrcode.create(encMessage2)
+qrcode2.png('qrvac2.png',scale=8)
